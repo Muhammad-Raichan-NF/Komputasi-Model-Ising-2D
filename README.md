@@ -1,0 +1,1 @@
+# Komputasi-Model-Ising-2D

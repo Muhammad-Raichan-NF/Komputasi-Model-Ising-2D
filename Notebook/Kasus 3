@@ -1,1 +1,96 @@
+import numpy as np
+import matplotlib.pyplot as plt
 
+# ======================
+# PARAMETER
+# ======================
+
+N = 20
+T = 4.0
+J = 1
+MC_STEPS = 200000
+
+# ======================
+# HOT START
+# ======================
+
+spins = np.random.choice([-1, 1], size=(N, N))
+
+# ======================
+# DELTA ENERGI
+# ======================
+
+def delta_energy(lattice, i, j):
+
+    spin = lattice[i, j]
+
+    neighbors = (
+        lattice[(i+1)%N, j] +
+        lattice[(i-1)%N, j] +
+        lattice[i, (j+1)%N] +
+        lattice[i, (j-1)%N]
+    )
+
+    return 2 * J * spin * neighbors
+
+# ======================
+# MAGNETISASI
+# ======================
+
+def magnetization(lattice):
+    return np.sum(lattice)/(N*N)
+
+# ======================
+# METROPOLIS MONTE CARLO
+# ======================
+
+M_history = []
+
+for step in range(MC_STEPS):
+
+    i = np.random.randint(0, N)
+    j = np.random.randint(0, N)
+
+    dE = delta_energy(spins, i, j)
+
+    if dE <= 0:
+        spins[i, j] *= -1
+
+    elif np.random.rand() < np.exp(-dE/T):
+        spins[i, j] *= -1
+
+    if step % 100 == 0:
+        M_history.append(magnetization(spins))
+
+# ======================
+# GRAFIK MAGNETISASI
+# ======================
+
+plt.figure(figsize=(8,4))
+
+plt.plot(M_history)
+
+plt.xlabel("Sampling ke-100 langkah")
+plt.ylabel("Magnetisasi")
+
+plt.title("Model Ising 2D (T = 4.0)")
+
+plt.grid()
+
+plt.show()
+
+# ======================
+# KONFIGURASI AKHIR
+# ======================
+
+plt.figure(figsize=(6,6))
+
+plt.imshow(spins, cmap="binary")
+
+plt.title("Konfigurasi Akhir T = 4.0")
+
+plt.colorbar()
+
+plt.show()
+
+print("Magnetisasi akhir =", magnetization(spins))
